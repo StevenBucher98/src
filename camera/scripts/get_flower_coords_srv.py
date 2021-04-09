@@ -3,12 +3,21 @@ import pyzed.sl as sl
 import numpy as np
 import cv2
 import sys
-
-from camera.srv import get_flower_coords, get_flower_coordsResponse
 import rospy
 
+from camera.srv import get_flower_coords, get_flower_coordsResponse
+from camera.msg import Coord
+
 def handle_srv_call(req):
-    return get_flower_coordsResponse([1,2,3], [4,5,6])
+    coord1 = Coord()
+    coord2 = Coord()
+    coord1.x = 1
+    coord1.y = 2
+    coord1.z = 3
+    coord2.x = 4
+    coord2.y = 5
+    coord2.z = 6
+    return get_flower_coordsResponse([coord1,coord2])
 
 def get_flower_coords_server():
     while(True):
