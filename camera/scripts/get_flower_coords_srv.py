@@ -17,7 +17,7 @@ def handle_srv_call(req):
     coord2.x = 4
     coord2.y = 5
     coord2.z = 6
-    return get_flower_coordsResponse([coord1,coord2])
+    return get_flower_coordsResponse([coord1, coord2])
 
 def get_flower_coords_server():
     while(True):

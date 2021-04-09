@@ -1,5 +1,0 @@
-string caller
-bool relay1
-bool relay2
----
-int64[] status
