@@ -20,7 +20,7 @@ def handle_srv_call(req):
     err = zed.open(init_params)
 
     if err != sl.ERROR_CODE.SUCCESS:
-        return get_flower_coordsResponse(False, "get_flower_coords/Error Opening camera")
+        return get_flower_coordsResponse([], "get_flower_coords/Error Opening camera")
 
     runtime_parameters = sl.RuntimeParameters()
     # IMG objects for the image and the depth video
@@ -87,7 +87,7 @@ def handle_srv_call(req):
             res.append(temp)
 
     else:
-        return get_flower_coordsResponse(False, "get_flower_coords/Error Capturing image")
+        return get_flower_coordsResponse([], "get_flower_coords/Error Capturing image")
 
     return get_flower_coordsResponse(res, "get_flower_coords/success")
 
