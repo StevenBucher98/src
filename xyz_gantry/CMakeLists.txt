@@ -163,6 +163,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/home_gantry_srv.py
+  scripts/move_gantry_srv.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

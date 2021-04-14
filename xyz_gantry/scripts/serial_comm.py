@@ -13,7 +13,7 @@ def sendCommands(cmds, s, delay=0):
         if (delay != 0):
             time.sleep(delay)
 
-        flushGrblOutput()
+        flushGrblOutput(s)
 
 def flushGrblOutput(s):
     while True:   
