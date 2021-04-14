@@ -2,7 +2,7 @@ import serial
 import time
 import inspect
 
-def sendCommands(cmds, delay=0):
+def sendCommands(cmds, s, delay=0):
     for cmd in cmds.strip().splitlines():
         cmd = cmd.strip()
         print('Sending: ' + cmd)
@@ -15,7 +15,7 @@ def sendCommands(cmds, delay=0):
 
         flushGrblOutput()
 
-def flushGrblOutput():
+def flushGrblOutput(s):
     while True:   
         grbl_out_raw = s.readline()
         grbl_out = grbl_out_raw.decode('utf-8').strip()
@@ -23,20 +23,20 @@ def flushGrblOutput():
         if grbl_out == 'ok':
             break
 
-def dumpSettings():
+def dumpSettings(s):
     cmd = """$$
             ?"""
-    sendCommands(cmd)
+    sendCommands(cmd, s)
 
-def homeDevice():
+def homeDevice(s):
     cmd = """
             $$
             $H
             G10 P0 L20 X0 Y0 Z0
             """
-    sendCommands(cmd)
+    sendCommands(cmd, s)
 
-def mowTheLawnXY():
+def mowTheLawnXY(s):
     cmd = ''
     for x in range(0,200,100):
         for y in range(0,400, 50):
@@ -44,30 +44,23 @@ def mowTheLawnXY():
 
     cmd += "G0 Y0"
     #print(cmd)
-    sendCommands(cmd, delay=0.8)
+    sendCommands(cmd, s,  delay=0.8)
 
-def fullRangeTest():
+def fullRangeTest(s):
     cmd = """
         G0 X700 Y350
         G0 Y0
         G0 X0 Y350
         G0 Y0
     """
-    sendCommands(cmd, delay=1)
+    sendCommands(cmd,s, delay=1)
 
-def jogX(amount):
+def jogX(amount, s):
     cmd = """G0 X{0}
     ?""".format(amount)
 
-    sendCommands(cmd, delay=1)
+    sendCommands(cmd,s, delay=1)
 
-def mowTheLawnXY2():
-    cmd = ''
-    for x in range(0,700,100):
-        cmd += "G0 X{0} Y350\n".format(x)
-        cmd += "G0 X{0} Y0\n".format(x)
-
-    sendCommands(cmd, delay=1)
 
 # # Open grbl serial port
 # s = serial.Serial('/dev/ttyAMA0',115200)
