@@ -11,13 +11,13 @@ import rospy
 
 
 def handle_srv_call(req):
-
-    if not path.exists(req.filepath):
+    fp = req.filepath
+    if not path.exists(fp):
         return capture_imageResponse(False, "capture_image_srv/File path does not exsist")
     # Getting timestamp for saving images
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d_%H:%M:%S")
-    print("Param: ", req.filepath)
+    print("Param: ", fp)
     # ZED configuration
     zed = sl.Camera()
     init_params = sl.InitParameters()
@@ -47,8 +47,9 @@ def handle_srv_call(req):
         depth_ocv = depth_zed.get_data()
 
         # saving the images
-        np.savetxt(req.filepath + "depth_"+timestamp+".csv", depth_ocv, delimiter=",")
-        cv2.imwrite(req.filepath + 'image_'+timestamp+ '.png', image_ocv)
+        np.savetxt(fp + "/depth_"+timestamp+".csv", depth_ocv, delimiter=",")
+        if not cv2.imwrite(fp + "/image_"+timestamp+ ".png", image_ocv):
+        	capture_imageResponse(False, "capture_image_srv/Error Saving Image")
         
         print("Image resolution: {0} x {1}\n".format(image_zed.get_width(), image_zed.get_height()))
         

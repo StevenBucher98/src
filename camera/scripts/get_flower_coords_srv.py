@@ -4,7 +4,8 @@ import numpy as np
 import cv2
 import sys
 import rospy
-
+import math
+from datetime import datetime 
 from camera.srv import get_flower_coords, get_flower_coordsResponse
 from camera.msg import Coord
 
@@ -18,6 +19,8 @@ def handle_srv_call(req):
     init_params.coordinate_units = sl.UNIT.MILLIMETER
     init_params.depth_minimum_distance = 0.1
     err = zed.open(init_params)
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d_%H:%M:%S")
 
     if err != sl.ERROR_CODE.SUCCESS:
         return get_flower_coordsResponse([], "get_flower_coords/Error Opening camera")
@@ -36,7 +39,6 @@ def handle_srv_call(req):
         # conversion to opencv objs
         img = image_zed.get_data()
         depth_ocv = depth_zed.get_data()
-
         # Convert to HSV and Greyscale respectively
         hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -44,17 +46,18 @@ def handle_srv_call(req):
         # HSV value range
         hsv_color1 = np.asarray([0, 0, 255])
         hsv_color2 = np.asarray([255, 20, 255])
-        
+
         # Filter out the specific colors from above
         mask = cv2.inRange(hsv_img, hsv_color1, hsv_color2)
         res = cv2.bitwise_and(img, img, mask=mask)
 
         # Kernals for morphological transformations
         kernel = np.ones((5, 5), np.uint8)
-        big_kernal = np.ones((50, 50), np.uint8)
+        big_kernal = np.ones((20, 20), np.uint8)
 
         # initally opening of the result of the filtered colors
         opening = cv2.morphologyEx(res, cv2.MORPH_OPEN, kernel)
+        closing = cv2.morphologyEx(res, cv2.MORPH_CLOSE, kernel)
 
         # dilation with small kernal
         dilation = cv2.dilate(opening, kernel, iterations=10)
@@ -62,34 +65,47 @@ def handle_srv_call(req):
         # bigger kernal closing 
         final = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, big_kernal)
 
+        final = closing
+
         # convert to greyscale for finding contours
         final_gray = cv2.cvtColor(final, cv2.COLOR_BGR2GRAY)
-        im2, contours, hierarchy = cv2.findContours(final_gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(final_gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        print("Number of Contours: ", len(contours))
+        result_contours = []
+        print("contor len", len(contours))
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            print("X Y W H")
-            print(x, y, w, h)
-            print("________________")
-            cv2.rectangle(img, (x, y), (x+w, y+h), (255,0,0), 10)
-            
-            # Gets the average
-            Z = np.mean(depth_ocv[x:x+w][y:y+h])
+            area = w*h
+            if area > 1000 and y < 1000 and y > 100:
+                print("X Y W H")
+                print(x, y, w, h)
+                print("-------------------")
+                cv2.rectangle(img, (x, y), (x+w, y+h), (255,0,0), 10)
+               
+                # Gets the average
+                sum_ = 0
+                count_ = 0
+                for x_i in range(x, x+w):
+                    for y_i in range(y, y+h):
+                        v = depth_ocv[y_i][x_i]
+                        if not np.isnan(v):
+                            count_ +=1                
+                            sum_ += v  
+                ave = sum_/count_
+                # TODO
+                # tranform the X and Y into positions that are more relvative to the gantry
 
-            # TODO
-            # tranform the X and Y into positions that are more relvative to the gantry
-
-            temp = Coord()
-            temp.x = x
-            temp.y = y
-            temp.z = Z
-            res.append(temp)
+                temp = Coord()
+                temp.x = x
+                temp.y = y
+                temp.z = ave
+                result_contours.append(temp)
+        cv2.imwrite('ros_test_image_'+timestamp+ '.png', img)
 
     else:
         return get_flower_coordsResponse([], "get_flower_coords/Error Capturing image")
 
-    return get_flower_coordsResponse(res, "get_flower_coords/success")
+    return get_flower_coordsResponse(result_contours, "get_flower_coords/success")
 
 def get_flower_coords_server():
     while(True):
