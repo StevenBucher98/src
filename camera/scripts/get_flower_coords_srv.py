@@ -77,11 +77,10 @@ def handle_srv_call(req):
             x, y, w, h = cv2.boundingRect(c)
             area = w*h
             if area > 1000 and y < 1000 and y > 100:
-                print("X Y W H")
-                print(x, y, w, h)
-                print("-------------------")
+                
                 cv2.rectangle(img, (x, y), (x+w, y+h), (255,0,0), 10)
-               
+                centroid = (int(x+(w/2)), int(y+(h/2)))
+               	
                 # Gets the average
                 sum_ = 0
                 count_ = 0
@@ -94,10 +93,16 @@ def handle_srv_call(req):
                 ave = sum_/count_
                 # TODO
                 # tranform the X and Y into positions that are more relvative to the gantry
-
+                X_SCALAR = 0.45289
+                Y_SCALAR = 0.44843
+                print("X Y W H")
+                print(x, y, w, h)
+                print("centroid: ", centroid)
+                print("scaled Cent: ", (centroid[0] * X_SCALAR, centroid[1] * Y_SCALAR))
+                print("-------------------")
                 temp = Coord()
-                temp.x = x
-                temp.y = y
+                temp.x = centroid[0] * X_SCALAR
+                temp.y = centroid[1] * Y_SCALAR
                 temp.z = ave
                 result_contours.append(temp)
         cv2.imwrite('ros_test_image_'+timestamp+ '.png', img)
