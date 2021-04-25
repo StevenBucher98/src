@@ -1,0 +1,4 @@
+<!-- <launch>
+	<node pkg="xyz_gantry" name="capture_image" type="capture_image_srv.py" />
+	<node pkg="xyz_gantry" name="get_flower_coords" type="get_flower_coords_srv.py" />
+</launch> -->

@@ -1,0 +1,4 @@
+string filepath
+---
+bool success
+string reason

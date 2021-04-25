@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="robocrop" name="home_gantry" type="home_gantry_srv.py" />
+	<node pkg="robocrop" name="move_gantry" type="move_gantry_srv.py" />
+</launch>
