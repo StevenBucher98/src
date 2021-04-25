@@ -6,8 +6,8 @@ import sys
 import rospy
 import math
 from datetime import datetime 
-from camera.srv import get_flower_coords, get_flower_coordsResponse
-from camera.msg import Coord
+from robocrop.srv import get_flower_coords, get_flower_coordsResponse
+from robocrop.msg import Coord
 
 def handle_srv_call(req):
     # setting up ZED Camera

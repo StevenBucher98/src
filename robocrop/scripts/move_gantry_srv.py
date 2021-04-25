@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import rospy
-from xyz_gantry.srv import move_gantry, move_gantryResponse
+from robocrop.srv import move_gantry, move_gantryResponse
 import serial
 import serial_comm as sc
 import time

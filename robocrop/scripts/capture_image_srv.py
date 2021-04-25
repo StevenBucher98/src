@@ -6,7 +6,7 @@ import sys
 from datetime import datetime 
 from os import path
 
-from camera.srv import capture_image,capture_imageResponse
+from robocrop.srv import capture_image,capture_imageResponse
 import rospy
 
 
