@@ -9,6 +9,12 @@ from datetime import datetime
 from robocrop.srv import get_flower_coords, get_flower_coordsResponse
 from robocrop.msg import Coord
 
+X_SCALAR = 0.45289
+Y_SCALAR = 0.44843
+X_OFFSET = 85#mm
+Y_OFFSET = 120#mm
+                
+
 def handle_srv_call(req):
     # setting up ZED Camera
     zed = sl.Camera()
@@ -52,18 +58,17 @@ def handle_srv_call(req):
         res = cv2.bitwise_and(img, img, mask=mask)
 
         # Kernals for morphological transformations
-        kernel = np.ones((5, 5), np.uint8)
+        kernel = np.ones((3, 3), np.uint8)
         big_kernal = np.ones((20, 20), np.uint8)
 
         # initally opening of the result of the filtered colors
         opening = cv2.morphologyEx(res, cv2.MORPH_OPEN, kernel)
-        closing = cv2.morphologyEx(res, cv2.MORPH_CLOSE, kernel)
-
+        closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
         # dilation with small kernal
-        dilation = cv2.dilate(opening, kernel, iterations=10)
+        #dilation = cv2.dilate(opening, kernel, iterations=10)
 
         # bigger kernal closing 
-        final = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, big_kernal)
+        #final = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, big_kernal)
 
         final = closing
 
@@ -76,8 +81,8 @@ def handle_srv_call(req):
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
             area = w*h
-            if area > 1000 and y < 1000 and y > 100:
-                
+            if area > 1500 and y < 1000 and y > 0 and x > 0 and x < 1500:
+            
                 cv2.rectangle(img, (x, y), (x+w, y+h), (255,0,0), 10)
                 centroid = (int(x+(w/2)), int(y+(h/2)))
                	
@@ -90,15 +95,19 @@ def handle_srv_call(req):
                         if not np.isnan(v):
                             count_ +=1                
                             sum_ += v  
-                ave = sum_/count_
+                if sum_ != 0 or count_ !=0:            
+                    ave = sum_/count_
+                else:
+                    ave = -1
                 # TODO
                 # tranform the X and Y into positions that are more relvative to the gantry
-                X_SCALAR = 0.45289
-                Y_SCALAR = 0.44843
+              
                 print("X Y W H")
                 print(x, y, w, h)
                 print("centroid: ", centroid)
                 print("scaled Cent: ", (centroid[0] * X_SCALAR, centroid[1] * Y_SCALAR))
+                print("Offset Cent: ", ((centroid[0] * X_SCALAR)+X_OFFSET, (centroid[1] * Y_SCALAR)+Y_OFFSET))
+                
                 print("-------------------")
                 temp = Coord()
                 temp.x = centroid[0] * X_SCALAR
