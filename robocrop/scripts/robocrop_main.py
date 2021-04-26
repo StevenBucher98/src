@@ -15,9 +15,11 @@ def main():
 		#print(type(coords))
 		#print(inspect.getmembers(coords))
 		for c in coords.coords:
-			print(c.x)
-			print(type(c))
+			print(c)
 			print("_______")
+		confirm = input("Please confirm to continue and move the gantry by typing \'1\'")
+		if int(confirm) == 1:
+			print("moving")
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 

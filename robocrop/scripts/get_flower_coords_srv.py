@@ -109,9 +109,13 @@ def handle_srv_call(req):
                 print("Offset Cent: ", ((centroid[0] * X_SCALAR)+X_OFFSET, (centroid[1] * Y_SCALAR)+Y_OFFSET))
                 
                 print("-------------------")
+                scaled_x = (centroid[0] * X_SCALAR) - X_OFFSET
+                scaled_y = (centroid[1] * Y_SCALAR) + Y_OFFSET
+                if scaled_x < 0:
+                    scaled_x = 0
                 temp = Coord()
-                temp.x = centroid[0] * X_SCALAR
-                temp.y = centroid[1] * Y_SCALAR
+                temp.x = scaled_x
+                temp.y = scaled_y
                 temp.z = ave
                 result_contours.append(temp)
         cv2.imwrite('ros_test_image_'+timestamp+ '.png', img)
