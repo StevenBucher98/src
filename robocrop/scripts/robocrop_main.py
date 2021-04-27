@@ -44,13 +44,16 @@ def main():
     
     print("RoboCrop Main Sequence Begin")
     home_result = call_home_gantry()
-    print(home_results)
+    print(type(home_result.success))
     # TODO CHECK HOMING WAS SUCCESSFUL
+    if home_result.success is False:
+        print("Error Homing the device")
+        return 0
     
     coords = call_get_flower_coords()
     for c in coords:
         print(c)
-        move_result = call_move_gantry(x=c.x, y=c.y, z=0,f=100)
+        #move_result = call_move_gantry(x=c.x, y=c.y, z=0,f=100)
         #TODO CHECK MOVE IS SUCCESSFUL
 
 if __name__ == "__main__":

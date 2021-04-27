@@ -106,13 +106,16 @@ def handle_srv_call(req):
                 print(x, y, w, h)
                 print("centroid: ", centroid)
                 print("scaled Cent: ", (centroid[0] * X_SCALAR, centroid[1] * Y_SCALAR))
-                print("Offset Cent: ", ((centroid[0] * X_SCALAR)+X_OFFSET, (centroid[1] * Y_SCALAR)+Y_OFFSET))
                 
-                print("-------------------")
                 scaled_x = (centroid[0] * X_SCALAR) - X_OFFSET
                 scaled_y = (centroid[1] * Y_SCALAR) + Y_OFFSET
+                
+                
                 if scaled_x < 0:
                     scaled_x = 0
+                print("Offset Cent: ", (scaled_x, scaled_y))
+                print("-------------------")
+                
                 temp = Coord()
                 temp.x = scaled_x
                 temp.y = scaled_y
