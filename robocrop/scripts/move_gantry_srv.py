@@ -7,7 +7,7 @@ import serial_comm as sc
 import time
 
 def handle_srv_call(req):
-    with serial.Serial('/dev/ttyTHS2', 115200, timeout=5) as s:
+    with serial.Serial('/dev/ttyAMA0', 115200, timeout=5) as s:
         serialCmd = "\r\n\r\n"
         s.write(serialCmd.encode())
         time.sleep(2)
