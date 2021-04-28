@@ -11,7 +11,7 @@ from robocrop.msg import Coord
 
 X_SCALAR = 0.45289
 Y_SCALAR = 0.44843
-X_OFFSET = 85#mm
+X_OFFSET = 225#mm
 Y_OFFSET = 120#mm
                 
 
@@ -121,7 +121,7 @@ def handle_srv_call(req):
                 temp.y = scaled_y
                 temp.z = ave
                 result_contours.append(temp)
-        cv2.imwrite('ros_test_image_'+timestamp+ '.png', img)
+        cv2.imwrite('/home/imagebay/AAros_test_image_'+timestamp+ '.png', img)
 
     else:
         return get_flower_coordsResponse([], "get_flower_coords/Error Capturing image")
