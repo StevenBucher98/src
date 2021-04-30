@@ -12,10 +12,9 @@ def handle_srv_call(req):
         s.write(serialCmd.encode())
         time.sleep(2)
         s.reset_input_buffer() # flushInput() in python 3 <
-        sc.dumpSettings(s)
+        #sc.dumpSettings(s)
 
         cmd = """
-            $$
             G0 X""" + str(req.x) + " Y" + str(req.y) +" Z" + str(req.z) + " F" +str(req.f) +"""
             """
         sc.sendCommands(cmd, s)

@@ -53,27 +53,29 @@ def main():
         return 0
     
     coords = call_get_flower_coords()
-	
-	command =''
-	while command != 'quit':
-	    print_coords(coords)
-		command = input("Choose the index of the coordinate you want to traverse to ('quit' to exit): ")
-		coord_choice = -1
-		try:
-			coord_choice = int(command)
-		except ValueError:
-			print("Please choose an integer value")
-		
-		if coord_choice > len(coords) or coord_choice == -1:
-			print("Please choose index from printed list")
-			continue
-		
-		c = coords[coord_choice]
-		print("chosen coord: ", c)
-		
-		print("moving...
-        move_result = call_move_gantry(x=0, y=c.y, z=0,f=250)
-		time.sleep(3)
+
+    command =''
+    while command != 'quit':
+        print_coords(coords)
+        command = input("Choose the index of the coordinate you want to traverse to ('quit' to exit): ")
+        coord_choice = -1
+        if command == 'quit':
+            return
+        try:
+            coord_choice = int(command)
+        except ValueError:
+            print("Please choose an integer value")
+
+        if coord_choice > len(coords) or coord_choice == -1:
+            print("Please choose index from printed list")
+            continue
+
+        c = coords[coord_choice]
+        print("chosen coord: ", c)
+
+        print("moving...")
+        move_result = call_move_gantry(x=c.x, y=0, z=0,f=250)
+        time.sleep(3)
         move_result = call_move_gantry(x=c.x, y=c.y, z=0,f=250)
         time.sleep(5)
         print("Finished")
