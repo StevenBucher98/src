@@ -5,8 +5,10 @@ import inspect
 import time
 from robocrop.srv import *
 
+SERVICE_TIMEOUT = 5
+
 def call_get_flower_coords():
-    rospy.wait_for_service('get_flower_coords')
+    rospy.wait_for_service('get_flower_coords', timeout=SERVICE_TIMEOUT)
     try:
 		get_flower_coords_func = rospy.ServiceProxy('get_flower_coords', get_flower_coords)
 		coords = get_flower_coords_func()
@@ -17,7 +19,7 @@ def call_get_flower_coords():
         
 
 def call_move_gantry(x,y,z,f):
-    rospy.wait_for_service('move_gantry')
+    rospy.wait_for_service('move_gantry', timeout=SERVICE_TIMEOUT)
     try:
 		move_gantry_func = rospy.ServiceProxy('move_gantry', move_gantry)
 		result = move_gantry_func(x,y,z,f)
@@ -26,7 +28,7 @@ def call_move_gantry(x,y,z,f):
         print("move_gantry service call failed: %s"%e)
 
 def call_home_gantry():
-    rospy.wait_for_service('home_gantry')
+    rospy.wait_for_service('home_gantry', timeout=SERVICE_TIMEOUT)
     try:
 		home_gantry_func = rospy.ServiceProxy('home_gantry', home_gantry)
 		result = home_gantry_func()
