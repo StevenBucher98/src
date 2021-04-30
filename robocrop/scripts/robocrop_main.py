@@ -2,6 +2,7 @@
 import sys
 import rospy
 import inspect
+import time
 from robocrop.srv import *
 
 def call_get_flower_coords():
@@ -9,15 +10,10 @@ def call_get_flower_coords():
     try:
 		get_flower_coords_func = rospy.ServiceProxy('get_flower_coords', get_flower_coords)
 		coords = get_flower_coords_func()
-		print(coords.coords)
-		#print(type(coords))
-		#print(inspect.getmembers(coords))
-		#for c in coords.coords:
-		#	print(c)
-		#	print("_______")
+		#print(coords.coords)
 		return coords.coords
     except rospy.ServiceException as e:
-        print("Service call failed: %s"%e)
+        print("get_flower_coords service call failed: %s"%e)
         
 
 def call_move_gantry(x,y,z,f):
@@ -27,7 +23,7 @@ def call_move_gantry(x,y,z,f):
 		result = move_gantry_func(x,y,z,f)
 		return result
     except rospy.ServiceException as e:
-        print("Service call failed: %s"%e)
+        print("move_gantry service call failed: %s"%e)
 
 def call_home_gantry():
     rospy.wait_for_service('home_gantry')
@@ -36,12 +32,16 @@ def call_home_gantry():
 		result = home_gantry_func()
 		return result
     except rospy.ServiceException as e:
-        print("Service call failed: %s"%e)
+        print("home_gantry service call failed: %s"%e)
+
+def print_coords(coords):
+	for coord_idx, coord in enumerate(coords):
+		print("-----------------------------")
+		print("Index: ", coord_idx)
+		print(coord)
+
 
 def main():
-    #rospy.wait_for_service('add_two_ints')
-    
-    
     print("RoboCrop Main Sequence Begin")
     home_result = call_home_gantry()
     print(type(home_result.success))
@@ -51,10 +51,30 @@ def main():
         return 0
     
     coords = call_get_flower_coords()
-    for c in coords:
-        print(c)
-        #move_result = call_move_gantry(x=c.x, y=c.y, z=0,f=100)
-        #TODO CHECK MOVE IS SUCCESSFUL
+	
+	command =''
+	while command != 'quit':
+	    print_coords(coords)
+		command = input("Choose the index of the coordinate you want to traverse to ('quit' to exit): ")
+		coord_choice = -1
+		try:
+			coord_choice = int(command)
+		except ValueError:
+			print("Please choose an integer value")
+		
+		if coord_choice > len(coords) or coord_choice == -1:
+			print("Please choose index from printed list")
+			continue
+		
+		c = coords[coord_choice]
+		print("chosen coord: ", c)
+		
+		print("moving...
+        move_result = call_move_gantry(x=0, y=c.y, z=0,f=250)
+		time.sleep(3)
+        move_result = call_move_gantry(x=c.x, y=c.y, z=0,f=250)
+        time.sleep(5)
+        print("Finished")
 
 if __name__ == "__main__":
     main()

@@ -81,9 +81,9 @@ def handle_srv_call(req):
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
             area = w*h
-            if area > 1500  and y > 0 and x > 0 and y < 1000:
+            if area > 1500  and y > 0 and x > 0 and y < 1000 and x < 1500:
             
-                cv2.rectangle(img, (x, y), (x+w, y+h), (255,0,0), 10)
+                cv2.rectangle(img, (x, y), (x+w, y+h), (0,255,0), 10)
                 centroid = (int(x+(w/2)), int(y+(h/2)))
                	
                 # Gets the average
