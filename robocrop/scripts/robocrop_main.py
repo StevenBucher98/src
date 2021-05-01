@@ -3,9 +3,11 @@ import sys
 import rospy
 import inspect
 import time
+import RPi.GPIO as GPIO
 from robocrop.srv import *
 
 SERVICE_TIMEOUT = 5
+OUTPUT_PIN = 18
 
 def call_get_flower_coords():
     rospy.wait_for_service('get_flower_coords', timeout=SERVICE_TIMEOUT)
@@ -45,6 +47,8 @@ def print_coords(coords):
 
 def main():
     print("RoboCrop Main Sequence Begin")
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(OUTPUT_PIN, GPIO.OUT, initial=GPIO.LOW)
     home_result = call_home_gantry()
     print(type(home_result.success))
     # TODO CHECK HOMING WAS SUCCESSFUL
@@ -79,6 +83,14 @@ def main():
         move_result = call_move_gantry(x=c.x, y=c.y, z=0,f=250)
         time.sleep(5)
         print("Finished")
+        cmd = input("Ready to use toolhead? Y/N")
+        if cmd == 'Y' or cmd == 'y':
+        	GPIO.output(OUTPUT_PIN, GPIO.HIGH)
+        	time.sleep(5)
+        	GPIO.output(OUTPUT_PIN, GPIO.LOW)
+        else:
+        	continue
+        	
 
 if __name__ == "__main__":
     main()
