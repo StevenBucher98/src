@@ -11,11 +11,12 @@ from robocrop.msg import Coord
 import time
 X_SCALAR = 0.45289
 Y_SCALAR = 0.44843
-X_OFFSET = 224#mm
-Y_OFFSET = 127#mm
+X_OFFSET = 235#mm 224 was previous good one 
+Y_OFFSET = 135#mm 127
                 
 
 def handle_srv_call(req):
+    print("service called")
     # setting up ZED Camera
     zed = sl.Camera()
     init_params = sl.InitParameters()
@@ -107,8 +108,8 @@ def handle_srv_call(req):
                 print("centroid: ", centroid)
                 print("scaled Cent: ", (centroid[0] * X_SCALAR, centroid[1] * Y_SCALAR))
                 
-                scaled_x = (centroid[0] * X_SCALAR) - X_OFFSET
-                scaled_y = (centroid[1] * Y_SCALAR) + Y_OFFSET
+                scaled_x = (centroid[0] * X_SCALAR) - X_OFFSET + 27
+                scaled_y = (centroid[1] * Y_SCALAR) + Y_OFFSET + 17
                 
                 
                 if scaled_x < 0:
@@ -124,7 +125,7 @@ def handle_srv_call(req):
                 result_contours.append(temp)
                 print("finding image time: ", start - time.time())
         start = time.time()
-        cv2.imwrite('/home/imagebay/AAros_test_image_'+timestamp+ '.png', img)
+        cv2.imwrite('/home/imagebay/Demo_test_image'+timestamp+ '.png', img)
         print("Save image time: ", start -time.time())
     else:
         return get_flower_coordsResponse([], "get_flower_coords/Error Capturing image")

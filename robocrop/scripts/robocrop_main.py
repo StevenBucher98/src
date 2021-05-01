@@ -47,49 +47,108 @@ def print_coords(coords):
 
 def main():
     print("RoboCrop Main Sequence Begin")
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(OUTPUT_PIN, GPIO.OUT, initial=GPIO.LOW)
+    
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(OUTPUT_PIN, GPIO.OUT, initial=GPIO.LOW)
+
     home_result = call_home_gantry()
-    print(type(home_result.success))
+    print("Homing: ", home_result.success)
+    # call_move_gantry(x=500, y=0, z=0,f=250)
+    # call_move_gantry(x=500, y=100, z=0,f=250)
+    # call_move_gantry(x=300, y=100, z=0,f=250)
+    # call_move_gantry(x=300, y=300, z=0,f=250)
+    # call_move_gantry(x=300, y=600, z=0,f=250)
+    # call_move_gantry(x=600, y=600, z=0,f=250)
+    # call_move_gantry(x=0, y=0, z=0,f=250)
+    # return
     # TODO CHECK HOMING WAS SUCCESSFUL
     if home_result.success is False:
         print("Error Homing the device")
         return 0
     
+    print("Getting flower Coords:")
     coords = call_get_flower_coords()
+    print("Flower Coords: ")
+    print()
+    c = coords[4]
+    print("First Flower: ", c)
 
-    command =''
-    while command != 'quit':
-        print_coords(coords)
-        command = input("Choose the index of the coordinate you want to traverse to ('quit' to exit): ")
-        coord_choice = -1
-        if command == 'quit':
-            return
-        try:
-            coord_choice = int(command)
-        except ValueError:
-            print("Please choose an integer value")
+    print("Moving...")
+    move_result = call_move_gantry(x=c.y, y=0, z=0, f=250)
+    time.sleep(1)
+    move_result = call_move_gantry(x=c.y, y=c.x, z=11, f=250)
+    time.sleep(6)
+    print("At flower, Clipping...")
+    GPIO.output(OUTPUT_PIN, GPIO.HIGH)
+    time.sleep(2)
+    GPIO.output(OUTPUT_PIN, GPIO.LOW)
+    time.sleep(2)
+    print("Backing off...")
+    move_result = call_move_gantry(x=c.y, y=c.x - 100, z=0, f=250)
+    time.sleep(1)
+    c1 = coords[0]
+    print("Second Flower: ", c1)
+    print("Moving...")
+    
+    move_result = call_move_gantry(x=c1.y-15, y=c.x - 100, z=0, f=250)
+    time.sleep(1)
+    move_result = call_move_gantry(x=c1.y-15, y=c1.x, z=4.5, f=250)
+    time.sleep(8)
+    print("At flower, Clipping...")
 
-        if coord_choice > len(coords) or coord_choice == -1:
-            print("Please choose index from printed list")
-            continue
+    GPIO.output(OUTPUT_PIN, GPIO.HIGH)
+    time.sleep(2)
+    GPIO.output(OUTPUT_PIN, GPIO.LOW)
+    time.sleep(2)
+    move_result = call_move_gantry(x=c1.y-100, y=c1.x-100, z=0, f=250)
+    time.sleep(1)
+    move_result = call_move_gantry(x=0, y=0, z=0, f=250)
 
-        c = coords[coord_choice]
-        print("chosen coord: ", c)
+    # print("Finished")
+    # cmd = input("Ready to use toolhead? Y/N")
+    # if cmd == 'Y' or cmd == 'y':
+    #     GPIO.output(OUTPUT_PIN, GPIO.HIGH)
+    #     time.sleep(5)
+    #     GPIO.output(OUTPUT_PIN, GPIO.LOW)
+    
 
-        print("moving...")
-        move_result = call_move_gantry(x=c.x, y=0, z=0,f=250)
-        time.sleep(3)
-        move_result = call_move_gantry(x=c.x, y=c.y, z=0,f=250)
-        time.sleep(5)
-        print("Finished")
-        cmd = input("Ready to use toolhead? Y/N")
-        if cmd == 'Y' or cmd == 'y':
-        	GPIO.output(OUTPUT_PIN, GPIO.HIGH)
-        	time.sleep(5)
-        	GPIO.output(OUTPUT_PIN, GPIO.LOW)
-        else:
-        	continue
+    
+        
+
+
+    # command =''
+    # while command != 'quit':
+    #     print_coords(coords)
+    #     command = input("Choose the index of the coordinate you want to traverse to ('quit' to exit): ")
+    #     coord_choice = -1
+    #     if command == 'quit':
+    #         return
+    #     try:
+    #         coord_choice = int(command)
+    #     except ValueError:
+    #         print("Please choose an integer value")
+
+    #     if coord_choice > len(coords) or coord_choice == -1:
+    #         print("Please choose index from printed list")
+    #         continue
+
+    #     c = coords[coord_choice]
+    #     print("chosen coord: ", c)
+
+    #     print("moving...")
+    #     move_result = call_move_gantry(x=c.y, y=0, z=0, f=250)
+    #     time.sleep(1)
+    #     move_result = call_move_gantry(x=c.y, y=c.x, z=11, f=250)
+    #     time.sleep(1)
+    #     print("Finished")
+    #     cmd = input("Ready to use toolhead? Y/N")
+    #     if cmd == 'Y' or cmd == 'y':
+    #     	GPIO.output(OUTPUT_PIN, GPIO.HIGH)
+    #     	time.sleep(5)
+    #     	GPIO.output(OUTPUT_PIN, GPIO.LOW)
+    #     else:
+    #     	continue
         	
 
 if __name__ == "__main__":
