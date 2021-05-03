@@ -33,11 +33,13 @@ def handle_srv_call(req):
         return get_flower_coordsResponse([], "get_flower_coords/Error Opening camera")
 
     runtime_parameters = sl.RuntimeParameters()
-    # IMG objects for the image and the depth video
+	# IMG objects for the image and the depth video
     image_zed = sl.Mat(zed.get_camera_information().camera_resolution.width, zed.get_camera_information().camera_resolution.height, sl.MAT_TYPE.U8_C4)
     depth_zed = sl.Mat(zed.get_camera_information().camera_resolution.width, zed.get_camera_information().camera_resolution.height, sl.MAT_TYPE.U8_C4)
     
+	# Resulting flowers
     res = []
+    
     if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
         # capture the images from ZED camera
         zed.retrieve_image(image_zed, sl.VIEW.LEFT) # Get the left image
@@ -79,15 +81,19 @@ def handle_srv_call(req):
 
         result_contours = []
         print("contor len", len(contours))
+        flower_count = 0
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
             area = w*h
             if area > 1500  and y > 0 and x > 0 and y < 1000 and x < 1500:
             
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0,255,0), 10)
+                cv2.putText(img, "flower " + str(flower_count), (x-20,y), cv2.FONT_HERSHEY_PLAIN, 4, (0, 255,0), 3, cv2.LINE_AA)
+
+				# get centroid 
                 centroid = (int(x+(w/2)), int(y+(h/2)))
                	
-                # Gets the average
+                # Gets the average z depth
                 sum_ = 0
                 count_ = 0
                 for x_i in range(x, x+w):
@@ -100,10 +106,9 @@ def handle_srv_call(req):
                     ave = sum_/count_
                 else:
                     ave = -1
-                # TODO
-                # tranform the X and Y into positions that are more relvative to the gantry
-              
-                print("X Y W H")
+               
+                print("Flower ", flower_count)			
+                print("Pixel Coord: (X Y W H)")
                 print(x, y, w, h)
                 print("centroid: ", centroid)
                 print("scaled Cent: ", (centroid[0] * X_SCALAR, centroid[1] * Y_SCALAR))
@@ -111,22 +116,24 @@ def handle_srv_call(req):
                 scaled_x = (centroid[0] * X_SCALAR) - X_OFFSET + 27
                 scaled_y = (centroid[1] * Y_SCALAR) + Y_OFFSET + 17
                 
-                
+                # making sure we do not go in negative
                 if scaled_x < 0:
                     scaled_x = 0
                 print("Offset Cent: ", (scaled_x, scaled_y))
                 print("-------------------")
                 
-                temp = Coord()
-                temp.x = scaled_x
-                temp.y = scaled_y
-                temp.z = ave
-        
-                result_contours.append(temp)
-                print("finding image time: ", start - time.time())
+                flower = Coord() # Coord is my predetermined ROS Message to help with transfering a dynamic list of coords
+                flower.x = scaled_x
+                flower.y = scaled_y
+                flower.z = ave
+
+                flower_count += 1
+                result_contours.append(flower)
+
+        print("finding image time: ", abs(start - time.time()), "s")	
         start = time.time()
         cv2.imwrite('/home/imagebay/Demo_test_image'+timestamp+ '.png', img)
-        print("Save image time: ", start -time.time())
+        print("Save image time: ", abs(start -time.time()), "s")
     else:
         return get_flower_coordsResponse([], "get_flower_coords/Error Capturing image")
 
